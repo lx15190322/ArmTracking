@@ -1,0 +1,19 @@
+<package>
+  <description brief="ArmTracking">
+
+     ArmTracking
+
+  </description>
+  <author>Juan</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ArmTracking</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="rosserial_python"/>
+  <depend package="rosserial_arduino"/>
+
+</package>
+
+
