@@ -1,0 +1,7 @@
+copy id_rsa.pub
+paste to your target system, ~/.ssh/authorized_keys
+ssh -v name@address.of.your.target
+--
+now you do ros things here
+--
+exit
