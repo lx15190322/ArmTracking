@@ -13,7 +13,7 @@ import numpy as np
 ##pixelsize/ballsize = pixeldev/realdev
 center = [320.0,240.0]
 pixel = 0.003
-lens = 3.0
+lens = 3.5
 ballsize = 50.8
 lock = 0
 #command = 50
@@ -88,7 +88,8 @@ if __name__ == '__main__':
 	    #dev = np.sqrt((ballcenter[0]-center[0])*(ballcenter[0]-center[0]) + (ballcenter[1]-center[1])*(ballcenter[1]-center[1]))
 	    dev = ballcenter[0] - center[0]	    
 	    realdev = dev*ballsize/(max([w,h]))
-	    des_angle = np.floor(np.arcsin(realdev/dis)*180.0/np.pi)
+	    #des_angle = np.floor(np.arcsin(realdev/dis)*180.0/np.pi)
+	    des_angle = np.floor(np.arctan(dev*pixel/lens)*180.0/np.pi)
             cv2.putText(frame,str(dis),(x+w/2, y+h/2),cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 1)
 	    try:
         	#talker()
