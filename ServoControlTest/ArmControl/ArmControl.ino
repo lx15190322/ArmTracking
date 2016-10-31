@@ -29,6 +29,7 @@ ros::Publisher aws("lock", &aws_msg);
 
 int start;
 int target;
+int turn_flag = 0;
 
 Servo servo;
 Servo servo2;
@@ -37,10 +38,36 @@ Servo servo3;
 void servo_cb( const std_msgs::UInt16& cmd_msg){
   //servo.write(cmd_msg.data); //set servo angle, should be from 0-180  
   start = servo.read();
+  if (start > 160){
+      turn_flag = 1;
+  }
+  else if (start < 20){
+      turn_flag = 0;
+  }
   target = cmd_msg.data;
+  
   aws_msg.data = 1;
-  aws.publish(&aws_msg);
-  if (target>180){
+  
+  if (target > 360){
+    if (turn_flag == 0){
+      target = start + 3;
+      for (int pos = start; pos <= target; pos += 1) { // goes from 0 degrees to 180 degrees
+        // in steps of 1 degree
+        servo.write(pos);              // tell servo to go to position in variable 'pos'
+        delay(25);                       // waits 15ms for the servo to reach the position
+      }
+    }
+    else if (turn_flag == 1){
+      target = start - 3;
+      for (int pos = start; pos >= target; pos -= 1) { // goes from 0 degrees to 180 degrees
+        // in steps of 1 degree
+        servo.write(pos);              // tell servo to go to position in variable 'pos'
+        delay(25);                       // waits 15ms for the servo to reach the position
+      }
+    }
+  }
+  else if (target>180 && target<360){
+    aws.publish(&aws_msg);
     target = target - 180;
     target = target/2;
     if (target > 1){
@@ -49,11 +76,12 @@ void servo_cb( const std_msgs::UInt16& cmd_msg){
       for (int pos = start; pos <= target; pos += 1) { // goes from 0 degrees to 180 degrees
         // in steps of 1 degree
         servo.write(pos);              // tell servo to go to position in variable 'pos'
-        delay(15);                       // waits 15ms for the servo to reach the position
+        delay(25);                       // waits 15ms for the servo to reach the position
       }
     }
   }
   else if (target<180){
+    aws.publish(&aws_msg);
     //target = target - 180;
     target = target/2;
     if (start-target > 1){
@@ -62,7 +90,7 @@ void servo_cb( const std_msgs::UInt16& cmd_msg){
       for (int pos = start; pos >= target; pos -= 1) { // goes from 0 degrees to 180 degrees
         // in steps of 1 degree
         servo.write(pos);              // tell servo to go to position in variable 'pos'
-        delay(15);                       // waits 15ms for the servo to reach the position
+        delay(25);                       // waits 15ms for the servo to reach the position
       }
     }
   }
@@ -141,5 +169,6 @@ void setup(){
 
 void loop(){
   nh.spinOnce();
+  //Serial.println(target);
   delay(1);
 }

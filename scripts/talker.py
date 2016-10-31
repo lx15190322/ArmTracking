@@ -17,6 +17,7 @@ lens = 3.5
 ballsize = 50.8
 lock = 0
 #command = 50
+lost_count = 0
 pub = rospy.Publisher('servo', UInt16, queue_size=10)
 
 def callback(data):
@@ -79,25 +80,39 @@ if __name__ == '__main__':
                 bestContour = contour
                 maximumArea = currentArea
                 # Create a bounding box around the biggest blue object
+	
         if bestContour is not None:
             x, y, w, h = cv2.boundingRect(bestContour)
-            ballcenter = [(x+w/2)*1.0, (y+h/2)*1.0]
-	    cv2.circle(frame, (x+w/2, y+h/2), (w+h)/4, (0, 0, 255), 3)
-            dis = lens*ballsize/(max([w,h])*pixel)
+	    if (w+h)/2 > 20:
+                lost_count = 0
+                ballcenter = [(x+w/2)*1.0, (y+h/2)*1.0]
+	        cv2.circle(frame, (x+w/2, y+h/2), (w+h)/4, (0, 0, 255), 3)
+                dis = lens*ballsize/(max([w,h])*pixel)
 	    
-	    #dev = np.sqrt((ballcenter[0]-center[0])*(ballcenter[0]-center[0]) + (ballcenter[1]-center[1])*(ballcenter[1]-center[1]))
-	    dev = ballcenter[0] - center[0]	    
-	    realdev = dev*ballsize/(max([w,h]))
-	    #des_angle = np.floor(np.arcsin(realdev/dis)*180.0/np.pi)
-	    des_angle = np.floor(np.arctan(dev*pixel/lens)*180.0/np.pi)
-            cv2.putText(frame,str(dis),(x+w/2, y+h/2),cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 1)
-	    try:
-        	#talker()
-		a_input = int(des_angle)
+	        #dev = np.sqrt((ballcenter[0]-center[0])*(ballcenter[0]-center[0]) + (ballcenter[1]-center[1])*(ballcenter[1]-center[1]))
+	        dev = ballcenter[0] - center[0]	    
+	        realdev = dev*ballsize/(max([w,h]))
+	        #des_angle = np.floor(np.arcsin(realdev/dis)*180.0/np.pi)
+	        des_angle = np.floor(np.arctan(dev*pixel/lens)*180.0/np.pi)
+                cv2.putText(frame,str(dis),(x+w/2, y+h/2),cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 1)
+	        try:
+        	    #talker()
+		    a_input = int(des_angle)
+	            talker(a_input)
+    	        except rospy.ROSInterruptException:
+        	    pass
+	    else:
+		lost_count += 1
+		if lost_count > 10:
+		    a_input = 999
+	            talker(a_input)
+	else:
+	    lost_count += 1
+	    if lost_count > 10:
+	        a_input = 999
 	        talker(a_input)
-    	    except rospy.ROSInterruptException:
-        	pass
-        # Show the original camera feed with a bounding box overlayed
+        
+	# Show the original camera feed with a bounding box overlayed
         cv2.imshow('frame', frame)
         # Show the contours in a seperate window
         #cv2.imshow('mask', mask)
